@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+        SmartCivic - AI Civic Intelligence
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css">
+
+    <!-- Leaflet Map -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+</head>
+<!-- SMARTCIVIC AI ASSISTANT -->
+
+<div id="assistantModal" class="assistant-modal hidden">
+
+    <div class="assistant-box">
+
+        <div class="assistant-header">
+            <div>
+                <h2>🤖 SmartCivic Assistant</h2>
+                <span>Your Civic Help Assistant</span>
+            </div>
+
+            <button
+                type="button"
+                onclick="closeAssistant()"
+                class="assistant-close">
+                ×
+            </button>
+        </div>
+
+        <div id="assistantMessages" class="assistant-messages">
+<div class="assistant-suggestions">
+
+    <button type="button"
+        onclick="askAssistantSuggestion('Complaint kaise kare?')">
+        📝 Complaint कैसे करें?
+    </button>
+
+    <button type="button"
+        onclick="askAssistantSuggestion('GPS location kaise den?')">
+        📍 GPS Location
+    </button>
+
+    <button type="button"
+        onclick="askAssistantSuggestion('Photo kaise upload kare?')">
+        📷 Photo Upload
+    </button>
+
+    <button type="button"
+        onclick="askAssistantSuggestion('Emergency complaint kaise kare?')">
+        🚨 Emergency
+    </button>
+
+    <button type="button"
+        onclick="askAssistantSuggestion('Complaint status kaise dekhe?')">
+        📊 Complaint Status
+    </button>
+
+</div>
+            <div class="assistant-message bot">
+                👋 Hello! I'm SmartCivic Assistant.<br><br>
+                I can help you with complaints, emergencies,
+                GPS location, photo evidence and complaint status.
+            </div>
+
+        </div>
+
+        <div class="assistant-input-area">
+
+            <input
+                type="text"
+                id="assistantInput"
+                placeholder="Type your question..."
+                autocomplete="off">
+
+            <button
+                type="button"
+                onclick="sendAssistantMessage()">
+
+                ➤
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+<body>
+
+<!-- SMARTCIVIC HD CINEMATIC BACKGROUND -->
+<div class="global-background" aria-hidden="true">
+    <video id="smartCivicBackgroundVideo" class="background-video" autoplay muted loop playsinline preload="auto" poster="smartcivic-hd-bg.png">
+        <source src="smartcivic-hd-bg.mp4" type="video/mp4">
+    </video>
+    <div class="background-fallback"></div>
+    <div class="background-shade"></div>
+    <div class="background-vignette"></div>
+</div>
+<script>
+(() => {
+  const video = document.getElementById('smartCivicBackgroundVideo');
+  if (!video) return;
+  video.muted = true;
+  const start = () => video.play().catch(() => {});
+  video.addEventListener('canplay', start, { once: true });
+  window.addEventListener('load', start, { once: true });
+})();
+</script>
+
+
+<!-- =====================================================
+     LOGIN
+===================================================== -->
+
+<section
+    class="page active"
+    id="loginPage">
+
+  <div class="top-menu">
+
+   <div class="language-wrapper">
+
+    <button
+        type="button"
+        onclick="toggleLanguageMenu()">
+
+        🌐 Language
+
+    </button>
+<select id="languageSelector" style="display:none;">
+    <option value="en">English</option>
+    <option value="hi">हिन्दी</option>
+</select>
+    <div
+        id="languageMenu"
+        class="language-menu hidden">
+
+        <button
+            type="button"
+            onclick="selectLanguage('en')">
+
+            🇬🇧 English
+
+        </button>
+
+        <button
+            type="button"
+            onclick="selectLanguage('hi')">
+
+            🇮🇳 हिन्दी
+
+        </button>
+
+    </div>
+
+</div>
+
+    <button type="button" onclick="goHome()">
+        🏠 Home
+    </button>
+<button
+    type="button"
+    onclick="toggleMenu()">
+
+    ☰ Menu
+
+</button>
+<div id="mainMenu" class="menu-dropdown hidden">
+
+    <button type="button" onclick="showHelp()">
+        🆘 Help & Support
+    </button>
+
+    <button type="button" onclick="showAbout()">
+        ℹ️ About SmartCivic
+    </button>
+
+    <button type="button" onclick="showAssistant()">
+        🤖 Need Assistant
+    </button>
+
+</div>
+</div>
+    <div class="auth-wrapper">
+        <div class="brand-area">
+
+            <div class="logo">
+                🏙️
+            </div>
+
+            <h1>
+                SmartCivic
+            </h1>
+
+            <p>
+                AI-Powered Civic Issue Intelligence
+            </p>
+
+            <div class="feature-list">
+
+                <div>📍 GPS Location</div>
+                <div>📷 Live Photo Evidence</div>
+                <div>🤖 AI Verification</div>
+                <div>⚡ Emergency Escalation</div>
+                <div>🗺️ Civic Map</div>
+                <div>🤝 NGO Transparency</div>
+
+            </div>
+
+        </div>
+
+        <div class="auth-card">
+
+            <h2>
+                Welcome Back 👋
+            </h2>
+
+            <p class="muted">
+                Login to SmartCivic
+            </p>
+
+            <form id="loginForm">
+
+                <label>Email</label>
+
+                <input
+                    type="email"
+                    id="loginEmail"
+                    placeholder="Enter email"
+                    required>
+
+                <label>Password</label>
+
+                <input
+                    type="password"
+                    id="loginPassword"
+                    placeholder="Enter password"
+                    required>
+<!-- EMAIL VERIFICATION -->
+
+
+                <button
+                    class="primary-btn"
+                    type="submit">
+
+                    🔐 Login
+
+                </button>
+
+            </form>
+
+            <button
+    class="secondary-btn"
+    type="button"
+    onclick="showForgotPassword()">
+
+    🔑 Forgot Password?
+
+</button>
+            <button
+                class="secondary-btn"
+                type="button"
+                onclick="showRegister()">
+
+
+                ➕ Create Citizen Account
+
+            </button>
+
+            <div class="demo-box">
+
+                <b>Admin Demo</b>
+
+                <p>
+                    admin@smartcivic.com<br>
+                    Password: admin123
+                </p>
+
+                <b>NGO Demo</b>
+
+                <p>
+                    ngo@smartcivic.com<br>
+                    Password: ngo123
+                </p>
+
+            </div>
+
+        </div>
+</div>
+</section>
+<!-- =====================================================
+     FORGOT PASSWORD
+===================================================== -->
+<section
+    class="page hidden"
+    id="forgotPasswordPage">
+<div class="top-menu">
+
+    <button
+        type="button"
+        onclick="goHome()">
+
+        🏠 Home
+
+    </button>
+
+</div>
+    <div class="auth-wrapper">
+
+    <div class="auth-wrapper">
+
+    <div class="auth-card">
+
+        <h2>🔑 Forgot Password</h2>
+
+        <p class="muted">
+            Enter your registered email.
+        </p>
+
+        <!-- EMAIL FORM -->
+
+        <form id="forgotPasswordForm">
+
+            <label>Email</label>
+
+            <input
+                type="email"
+                id="forgotEmail"
+                placeholder="Enter registered email"
+                required>
+
+            <button
+                class="primary-btn"
+                type="submit">
+
+                📩 Generate OTP
+
+            </button>
+
+        </form>
+
+
+        <!-- OTP SECTION -->
+
+        <div
+            id="otpSection"
+            class="hidden"
+            style="margin-top:20px;">
+
+            <label>Enter 6-digit OTP</label>
+
+            <input
+                type="text"
+                id="resetOTP"
+                placeholder="Enter 6-digit OTP"
+                maxlength="6"
+                 minlength="6"
+                inputmode="numeric"
+                autocomplete="one-time-code">
+
+            <button
+                class="primary-btn"
+                type="button"
+                onclick="verifyOTP()">
+
+                ✅ Verify OTP
+
+            </button>
+
+            <p
+                id="otpVerifyMessage"
+                style="margin-top:10px;">
+            </p>
+
+<!-- NEW PASSWORD --><div
+    id="newPasswordSection"
+    class="hidden"
+    style="margin-top:20px;"><label>New Password</label>
+
+<input
+    type="password"
+    id="newPassword"
+    placeholder="Enter new password"
+    required>
+
+<label style="display:block; margin-top:12px;">
+    Confirm Password
+</label>
+
+<input
+    type="password"
+    id="confirmPassword"
+    placeholder="Re-enter new password"
+    required>
+
+<button
+    class="primary-btn"
+    type="button"
+    onclick="resetPassword()"
+    style="margin-top:15px;">
+
+    🔐 Reset Password
+
+</button>
+
+</div>
+          
+        <!-- BACK TO LOGIN -->
+
+        <button
+            class="secondary-btn"
+            type="button"
+            onclick="showLogin()">
+
+            ← Back to Login
+
+        </button>
+
+    </div>
+
+</div>
+
+</section>
+<!-- =====================================================
+     REGISTER
+===================================================== --><section
+    class="page hidden"
+    id="registerPage"><div class="auth-wrapper">
+
+    <div class="brand-area">
+
+        <div class="logo">
+            🏙️
+        </div>
+
+        <h1>
+            SmartCivic
+        </h1>
+
+        <p>
+            Join the Smart City Community
+        </p>
+
+    </div>
+
+    <div class="auth-card">
+
+        <h2>
+            Create Account 🚀
+        </h2>
+
+        <form id="registerForm">
+
+            <label>Full Name</label>
+
+            <input
+                id="registerName"
+                type="text"
+                placeholder="Your name"
+                required>
+
+            <label>Email</label>
+
+            <input
+                id="registerEmail"
+                type="email"
+                placeholder="Email address"
+                required>
+
+            <button
+                type="button"
+                class="secondary-btn"
+                onclick="sendRegistrationOTP()">
+
+                📩 Verify Email
+
+            </button>
+
+            <!-- EMAIL OTP -->
+
+            <div
+                id="registerOTPSection"
+                class="hidden"
+                style="margin-top:15px;">
+
+                <label>
+                    Enter 6-digit OTP
+                </label>
+
+                <input
+                    id="registerOTP"
+                    type="text"
+                    placeholder="Enter 6-digit OTP"
+                    maxlength="6"
+                    inputmode="numeric"
+                    autocomplete="one-time-code">
+
+                <button
+                    type="button"
+                    class="primary-btn"
+                    onclick="verifyRegistrationOTP()">
+
+                    ✅ Verify OTP
+
+                </button>
+
+                <p
+                    id="registerOTPMessage"
+                    style="margin-top:10px;">
+                </p>
+
+            </div>
+
+            <label>Mobile</label>
+
+            <input
+                id="registerMobile"
+                type="tel"
+                placeholder="Mobile number"
+                required>
+
+            <label>Password</label>
+
+            <input
+                id="registerPassword"
+                type="password"
+                minlength="6"
+                placeholder="Create password"
+                required>
+
+            <label>Confirm Password</label>
+
+            <input
+                id="registerConfirmPassword"
+                type="password"
+                minlength="6"
+                placeholder="Re-enter password"
+                required>
+
+            <button
+                id="createAccountButton"
+                class="primary-btn"
+                type="submit"
+                disabled>
+
+                🔒 Verify Email First
+
+            </button>
+
+        </form>
+
+        <button
+            class="secondary-btn"
+            type="button"
+            onclick="showLogin()">
+
+            ← Back to Login
+
+        </button>
+
+    </div>
+
+</div>
+
+</section>
+<!-- =====================================================
+     CITIZEN
+===================================================== -->
+
+<section
+    class="page hidden"
+    id="citizenDashboard">
+
+    <header class="topbar">
+
+        <div>
+            <h2>🏙️ SmartCivic</h2>
+            <span>Citizen Portal</span>
+        </div>
+
+        <div class="user-area">
+
+            <span id="citizenName">
+                Citizen
+            </span>
+
+            <button onclick="logout()">
+                Logout
+            </button>
+
+        </div>
+
+    </header>
+
+    <main class="dashboard">
+
+        <div class="welcome-card">
+
+            <div>
+
+                <h1>
+                    Welcome,
+                    <span id="welcomeName">
+                        Citizen
+                    </span>
+                    👋
+                </h1>
+
+                <p>
+                    Report, track and verify civic issues.
+                </p>
+
+            </div>
+
+            <button
+                class="primary-btn"
+                onclick="openComplaintModal()">
+
+                🚨 Report Problem
+
+            </button>
+
+        </div>
+
+        <div class="emergency-banner">
+
+            <div>
+                <h3>
+                    🚨 Emergency Civic Issue?
+                </h3>
+
+                <p>
+                    Dangerous electric wires,
+                    major flooding or immediate hazards.
+                </p>
+            </div>
+
+            <button
+                onclick="openComplaintModal()">
+
+                Report Emergency
+
+            </button>
+
+        </div>
+
+        <div class="stats-grid">
+
+            <div class="stat-card blue">
+                <span>📋</span>
+                <h3 id="totalComplaints">0</h3>
+                <p>Total</p>
+            </div>
+
+            <div class="stat-card orange">
+                <span>⏳</span>
+                <h3 id="pendingComplaints">0</h3>
+                <p>Pending</p>
+            </div>
+
+            <div class="stat-card purple">
+                <span>🔧</span>
+                <h3 id="progressComplaints">0</h3>
+                <p>In Progress</p>
+            </div>
+
+            <div class="stat-card green">
+                <span>✅</span>
+                <h3 id="resolvedComplaints">0</h3>
+                <p>Resolved</p>
+            </div>
+
+        </div>
+
+        <div class="section-card">
+
+            <div class="section-title">
+
+                <div>
+                    <h2>
+                        📋 My Complaints
+                    </h2>
+
+                    <p>
+                        Track your civic reports.
+                    </p>
+                </div>
+
+                <button
+                    class="small-btn"
+                    onclick="openComplaintModal()">
+
+                    + New
+
+                </button>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>SLA</th>
+                            <th>Citizens</th>
+                            <th>Action</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody
+                        id="recentComplaintsBody">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</section>
+
+
+<!-- =====================================================
+     ADMIN
+===================================================== -->
+
+<section
+    class="page hidden"
+    id="adminDashboard">
+
+    <header class="topbar admin-bar">
+
+        <div>
+            <h2>
+                🏛️ SmartCivic Admin
+            </h2>
+
+            <span>
+                Civic Intelligence Command Center
+            </span>
+        </div>
+
+        <button onclick="logout()">
+            Logout
+        </button>
+
+    </header>
+
+    <main class="dashboard">
+
+        <div class="page-heading">
+
+            <h1>
+                Admin Dashboard 📊
+            </h1>
+
+            <p>
+                Monitor complaints, SLA, emergencies,
+                clusters and NGO escalation.
+            </p>
+
+        </div>
+
+        <div class="stats-grid">
+
+            <div class="stat-card blue">
+                <span>📋</span>
+                <h3 id="adminTotal">0</h3>
+                <p>Total Complaints</p>
+            </div>
+
+            <div class="stat-card orange">
+                <span>⏳</span>
+                <h3 id="adminPending">0</h3>
+                <p>Pending</p>
+            </div>
+
+            <div class="stat-card red">
+                <span>🚨</span>
+                <h3 id="adminEmergency">0</h3>
+                <p>Emergency</p>
+            </div>
+
+            <div class="stat-card green">
+                <span>✅</span>
+                <h3 id="adminResolved">0</h3>
+                <p>Resolved</p>
+            </div>
+
+            <div class="stat-card purple">
+                <span>⚠️</span>
+                <h3 id="adminBreached">0</h3>
+                <p>SLA Breached</p>
+            </div>
+
+            <div class="stat-card cyan">
+                <span>🤝</span>
+                <h3 id="adminNGO">0</h3>
+                <p>NGO Escalated</p>
+            </div>
+
+        </div>
+
+        <div class="analytics-grid">
+
+            <div class="section-card">
+
+                <h2>
+                    📊 Complaints by Category
+                </h2>
+
+                <canvas id="categoryChart"></canvas>
+
+            </div>
+
+            <div class="section-card">
+
+                <h2>
+                    📈 Resolution Rate
+                </h2>
+
+                <div
+                    id="resolutionRate"
+                    class="big-number">
+                    0%
+                </div>
+
+                <p>
+                    Based on resolved complaints.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="section-card">
+
+            <h2>
+                🗺️ Civic Issue Map
+            </h2>
+
+            <div id="adminMap"></div>
+
+        </div>
+
+        <div class="filter-card">
+
+            <input
+                id="adminSearch"
+                placeholder="🔎 Search complaint...">
+
+            <select id="statusFilter">
+
+                <option value="all">
+                    All Status
+                </option>
+
+                <option>Submitted</option>
+                <option>Assigned</option>
+                <option>In Progress</option>
+                <option>On Hold</option>
+                <option>Resolved</option>
+                <option>Rejected</option>
+                <option>Reopened</option>
+
+            </select>
+
+            <select id="priorityFilter">
+
+                <option value="all">
+                    All Priority
+                </option>
+
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+                <option>Emergency</option>
+
+            </select>
+
+        </div>
+
+        <div class="section-card">
+
+            <h2>
+                🚨 Complaint Command Center
+            </h2>
+
+            <div class="table-wrapper">
+                <div class="admin-filters">
+
+    <select id="statusFilter" onchange="renderAdminComplaints()">
+        <option value="all">All Status</option>
+        <option value="Submitted">Submitted</option>
+        <option value="Assigned">Assigned</option>
+        <option value="In Progress">In Progress</option>
+        <option value="On Hold">On Hold</option>
+        <option value="Resolved">Resolved</option>
+        <option value="Rejected">Rejected</option>
+        <option value="Reopened">Reopened</option>
+    </select>
+
+</div>
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Citizen</th>
+                            <th>Category</th>
+                            <th>Department</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>SLA</th>
+                            <th>Action</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody
+                        id="adminComplaintsBody">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</section>
+
+
+<!-- =====================================================
+     NGO
+===================================================== -->
+
+<section
+    class="page hidden"
+    id="ngoDashboard">
+
+    <header class="topbar ngo-bar">
+
+        <div>
+
+            <h2>
+                🤝 SmartCivic NGO
+            </h2>
+
+            <span>
+                Community Action Portal
+            </span>
+
+        </div>
+
+        <div class="user-area">
+
+            <span id="ngoName">
+                NGO
+            </span>
+
+            <button onclick="logout()">
+                Logout
+            </button>
+
+        </div>
+
+    </header>
+
+    <main class="dashboard">
+
+        <div class="welcome-card">
+
+            <div>
+
+                <h1>
+                    NGO Action Center 🤝
+                </h1>
+
+                <p>
+                    Investigate escalated civic problems.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="stats-grid">
+
+            <div class="stat-card red">
+                <span>🚨</span>
+                <h3 id="ngoEscalated">0</h3>
+                <p>Escalated</p>
+            </div>
+
+            <div class="stat-card blue">
+                <span>👥</span>
+                <h3 id="ngoCitizens">0</h3>
+                <p>Citizens</p>
+            </div>
+
+            <div class="stat-card purple">
+                <span>📍</span>
+                <h3 id="ngoAreas">0</h3>
+                <p>Areas</p>
+            </div>
+
+            <div class="stat-card green">
+                <span>📝</span>
+                <h3 id="ngoActions">0</h3>
+                <p>Actions</p>
+            </div>
+
+        </div>
+
+        <div
+            id="ngoComplaintList"
+            class="ngo-list">
+        </div>
+
+    </main>
+
+</section>
+
+
+<!-- =====================================================
+     COMPLAINT MODAL
+===================================================== -->
+
+<div
+    class="modal hidden"
+    id="complaintModal">
+
+    <div class="modal-box large">
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2>
+                    🚨 Report Civic Problem
+                </h2>
+
+                <p>
+                    AI-assisted civic issue analysis
+                </p>
+
+            </div>
+
+            <button
+                class="close-btn"
+                onclick="closeComplaintModal()">
+                ×
+            </button>
+
+        </div>
+
+        <form id="complaintForm">
+
+            <div class="form-grid">
+
+                <div>
+
+                    <label>
+                        Problem Category
+                    </label>
+
+                    <select
+                        id="complaintCategory"
+                        required>
+
+                        <option value="">
+                            Select category
+                        </option>
+
+                        <option>
+                            Dangerous / Fallen Electrical Wire
+                        </option>
+
+                        <option>
+                            Road Waterlogging / Flooded Street
+                        </option>
+
+                        <option>
+                            Traffic Signal / Road Safety
+                        </option>
+
+                        <option>
+                            Garbage / Waste Dump
+                        </option>
+
+                        <option>
+                            Pothole / Broken Road
+                        </option>
+
+                        <option>
+                            Streetlight Not Working
+                        </option>
+
+                        <option>
+                            Water Supply / Leakage
+                        </option>
+
+                        <option>
+                            Blocked Drain / Sewer Overflow
+                        </option>
+
+                        <option>
+                            Fallen / Dangerous Tree
+                        </option>
+
+                        <option>
+                            Road Obstruction / Encroachment
+                        </option>
+
+                        <option>
+                            Public Toilet / Sanitation
+                        </option>
+
+                        <option>
+                            Smoke / Pollution / Burning Waste
+                        </option>
+
+                        <option>
+                            Stray Animal / Animal Hazard
+                        </option>
+
+                        <option>
+                            Other Civic Problem
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div>
+
+                    <label>
+                        Description
+                    </label>
+
+                    <textarea
+                        id="complaintDescription"
+                        rows="3"
+                        placeholder="Example: School ke saamne electric wire zameen par gira hua hai"
+                        required>
+                    </textarea>
+
+                </div>
+
+            </div>
+
+            <label>
+                Problem Title
+            </label>
+
+            <input
+                id="complaintTitle"
+                placeholder="Short problem title"
+                required>
+
+            <div class="evidence-section">
+
+                <h3>
+                    📷 Current Photo
+                </h3>
+
+                <div class="photo-buttons">
+
+                    <button
+                        type="button"
+                        class="camera-btn"
+                        onclick="openCameraModal()">
+
+                        📷 Open Camera
+
+                    </button>
+
+                    <label class="gallery-btn">
+
+                        🖼️ Choose Photo
+
+                        <input
+                            type="file"
+                            id="complaintPhoto"
+                            accept="image/*"
+                            hidden>
+
+                    </label>
+
+                </div>
+
+                <div
+                    id="photoPreview"
+                    class="photo-preview hidden">
+
+                    <img
+                        id="previewImage"
+                        alt="Evidence">
+
+                    <button
+                        type="button"
+                        onclick="removePhoto()">
+
+                        🗑️ Remove
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="location-section">
+
+                <h3>
+                    📍 Problem Location
+                </h3>
+
+                <button
+                    type="button"
+                    class="location-btn"
+                    onclick="getCurrentLocation()">
+
+                    📍 Capture GPS Location
+
+                </button>
+
+                <p id="locationStatus">
+                    Location not selected.
+                </p>
+
+                <a
+                    id="mapLink"
+                    target="_blank"
+                    style="display:none">
+
+                    🗺️ Open Map
+
+                </a>
+
+                <input
+                    type="hidden"
+                    id="latitude">
+
+                <input
+                    type="hidden"
+                    id="longitude">
+
+                <input
+                    type="hidden"
+                    id="areaName">
+
+            </div>
+
+            <label class="checkbox-row">
+
+                <input
+                    type="checkbox"
+                    id="hideName">
+
+                Submit anonymously
+
+            </label>
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    onclick="closeComplaintModal()">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="primary-btn">
+
+                    🚀 Submit Complaint
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     CAMERA
+===================================================== -->
+
+<div
+    class="modal hidden"
+    id="cameraModal">
+
+    <div class="modal-box camera-box">
+
+        <div class="modal-header">
+
+            <h2>
+                📷 Live Camera
+            </h2>
+
+            <button
+                class="close-btn"
+                onclick="closeCameraModal()">
+
+                ×
+
+            </button>
+
+        </div>
+
+        <div class="camera-container">
+
+            <div
+                id="cameraPlaceholder"
+                class="camera-placeholder">
+
+                📷
+                <br>
+                Camera Preview
+
+            </div>
+
+            <video
+                id="cameraVideo"
+                autoplay
+                playsinline>
+            </video>
+
+        </div>
+
+        <p id="cameraMessage">
+            Starting camera...
+        </p>
+
+        <canvas
+            id="cameraCanvas"
+            hidden>
+        </canvas>
+
+        <div class="camera-actions">
+
+            <button
+                class="secondary-btn"
+                onclick="switchCamera()">
+
+                🔄 Switch
+
+            </button>
+
+            <button
+                class="primary-btn"
+                onclick="capturePhoto()">
+
+                📸 Capture
+
+            </button>
+
+            <button
+                class="secondary-btn"
+                onclick="closeCameraModal()">
+
+                Close
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     DETAIL
+===================================================== -->
+
+<div
+    class="modal hidden"
+    id="detailModal">
+
+    <div class="modal-box large">
+
+        <div class="modal-header">
+
+            <h2>
+                📄 Complaint Details
+            </h2>
+
+            <button
+                class="close-btn"
+                onclick="closeDetailModal()">
+                ×
+            </button>
+
+        </div>
+
+        <div id="complaintDetail"></div>
+
+    </div>
+
+</div>
+
+
+<div
+    id="toast"
+    class="toast">
+
+    <span id="toastMessage"></span>
+
+</div>
+
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+<script
+    src="https://cdn.jsdelivr.net/npm/chart.js">
+</script>
+
+<script src="script.js"></script>
+
+</body>
+</html>
