@@ -169,6 +169,8 @@ async function loginUser(email, password) {
 ========================================================= */
 
 let registrationEmailVerified = false;
+let registrationVerifiedEmail = "";
+let registrationOtpRequired = false;
 
 
 /* SEND REGISTRATION OTP */
@@ -189,6 +191,9 @@ async function sendRegistrationOTP() {
 
         return;
     }
+
+    const sendButton = $("sendRegistrationOTPButton");
+    if (sendButton) sendButton.disabled = true;
 
     try {
 
@@ -218,6 +223,8 @@ async function sendRegistrationOTP() {
             ?.classList
             .remove("hidden");
 
+        $("registerOTPMessage").textContent = "";
+
         $("registerOTP")
             ?.focus();
 
@@ -232,6 +239,8 @@ async function sendRegistrationOTP() {
             error.message ||
             "Unable to send OTP."
         );
+    } finally {
+        if (sendButton) sendButton.disabled = false;
     }
 }
 
@@ -282,6 +291,7 @@ async function verifyRegistrationOTP() {
             );
 
         registrationEmailVerified = true;
+        registrationVerifiedEmail = email;
 
         const message =
             $("registerOTPMessage");
@@ -302,6 +312,9 @@ async function verifyRegistrationOTP() {
                 "🚀 Create Account";
         }
 
+        const sendButton = $("sendRegistrationOTPButton");
+        if (sendButton) sendButton.disabled = true;
+
         showToast(
             data.message ||
             "Email verified successfully."
@@ -310,6 +323,7 @@ async function verifyRegistrationOTP() {
     } catch (error) {
 
         registrationEmailVerified = false;
+        registrationVerifiedEmail = "";
 
         console.error(
             "Registration OTP verification error:",
@@ -477,6 +491,57 @@ function showRegister() {
     if (form) {
         form.reset();
     }
+
+    registrationEmailVerified = false;
+    registrationVerifiedEmail = "";
+    configureRegistrationOTP();
+}
+
+async function configureRegistrationOTP() {
+    const status = $("registerEmailStatus");
+    const controls = $("registerOTPControls");
+    const createButton = $("createAccountButton");
+
+    registrationEmailVerified = false;
+    registrationVerifiedEmail = "";
+    registrationOtpRequired = true;
+    if (createButton) createButton.disabled = true;
+    if (status) status.textContent = "Checking email verification settings…";
+    if (controls) controls.classList.add("hidden");
+
+    try {
+        const health = await apiRequest("/health");
+        registrationOtpRequired = Boolean(health.emailConfigured);
+
+        if (registrationOtpRequired) {
+            if (status) status.textContent = "Verify your email address before creating your account.";
+            if (controls) controls.classList.remove("hidden");
+            if (createButton) createButton.disabled = true;
+        } else {
+            if (status) status.textContent = "Email verification is not configured yet. Account creation is available without email verification.";
+            if (createButton) createButton.disabled = false;
+        }
+    } catch (error) {
+        registrationOtpRequired = true;
+        if (status) status.textContent = "Could not check email verification. Please reload and try again.";
+        if (createButton) createButton.disabled = true;
+    }
+}
+
+function invalidateRegistrationEmailVerification() {
+    registrationEmailVerified = false;
+    registrationVerifiedEmail = "";
+
+    const otpSection = $("registerOTPSection");
+    if (otpSection) otpSection.classList.add("hidden");
+    const otpInput = $("registerOTP");
+    if (otpInput) otpInput.value = "";
+    const message = $("registerOTPMessage");
+    if (message) message.textContent = "";
+    const createButton = $("createAccountButton");
+    if (createButton) createButton.disabled = registrationOtpRequired;
+    const sendButton = $("sendRegistrationOTPButton");
+    if (sendButton) sendButton.disabled = false;
 }
 
 /* =========================================================
@@ -545,6 +610,11 @@ document.addEventListener(
 
         if (registerForm) {
 
+            $("registerEmail")?.addEventListener(
+                "input",
+                invalidateRegistrationEmailVerification
+            );
+
             registerForm.addEventListener(
                 "submit",
                 async function (event) {
@@ -565,6 +635,19 @@ document.addEventListener(
 
                     const confirmPassword =
                         $("registerConfirmPassword").value;
+
+                    const cleanEmail = email.toLowerCase();
+
+                    if (
+                        registrationOtpRequired &&
+                        (
+                            !registrationEmailVerified ||
+                            registrationVerifiedEmail !== cleanEmail
+                        )
+                    ) {
+                        showToast("Verify this email address before creating your account.");
+                        return;
+                    }
 
                     if (password !== confirmPassword) {
                         showToast("Passwords do not match.");

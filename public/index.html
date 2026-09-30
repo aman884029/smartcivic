@@ -448,7 +448,7 @@
             Create Account 🚀
         </h2>
 
-        <p class="muted">Email verification is temporarily paused. Use an email address you can access.</p>
+        <p class="muted" id="registerEmailStatus">Checking email verification settings…</p>
 
         <form id="registerForm">
 
@@ -467,6 +467,36 @@
                 type="email"
                 placeholder="Email address"
                 required>
+
+            <div id="registerOTPControls" class="hidden">
+                <button
+                    id="sendRegistrationOTPButton"
+                    class="secondary-btn"
+                    type="button"
+                    onclick="sendRegistrationOTP()">
+                    📩 Send verification code
+                </button>
+
+                <div id="registerOTPSection" class="hidden" style="margin-top: 14px;">
+                    <label for="registerOTP">6-digit email code</label>
+                    <input
+                        id="registerOTP"
+                        type="text"
+                        inputmode="numeric"
+                        autocomplete="one-time-code"
+                        maxlength="6"
+                        pattern="[0-9]{6}"
+                        placeholder="Enter 6-digit code">
+                    <button
+                        id="verifyRegistrationOTPButton"
+                        class="secondary-btn"
+                        type="button"
+                        onclick="verifyRegistrationOTP()">
+                        ✅ Verify email
+                    </button>
+                    <p id="registerOTPMessage" role="status" aria-live="polite"></p>
+                </div>
+            </div>
 
             <label>Mobile</label>
 
@@ -497,7 +527,8 @@
             <button
                 id="createAccountButton"
                 class="primary-btn"
-                type="submit">
+                type="submit"
+                disabled>
 
                 🚀 Create Account
 

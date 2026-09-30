@@ -20,9 +20,7 @@ const otpStore = new Map();
 
 
 function generateOTP() {
-    return Math.floor(
-        100000 + Math.random() * 900000
-    ).toString();
+    return crypto.randomInt(100000, 1000000).toString();
 }
 
 const app = express();
@@ -48,14 +46,52 @@ const mailer = process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMT
     })
     : null;
 
+const resendApiKey = process.env.RESEND_API_KEY;
+const emailFrom = process.env.EMAIL_FROM;
+const emailConfigured = Boolean(
+    (resendApiKey && emailFrom) || mailer
+);
+
 async function sendOTPEmail(to, otp, purpose) {
-    if (!mailer) throw new Error("Email delivery is not configured.");
+    if (!emailConfigured) throw new Error("Email delivery is not configured.");
+
+    const purposeText = purpose === "verify" ? "email verification" : "password reset";
+    const subject = purpose === "verify"
+        ? "Verify your SmartCivic email"
+        : "Your SmartCivic password reset code";
+    const text = `Your SmartCivic ${purposeText} code is ${otp}. It expires in 5 minutes. If you did not request this, ignore this email.`;
+    const html = `<p>Your SmartCivic ${purposeText} code is:</p><p style="font-size:24px;font-weight:bold;letter-spacing:4px">${otp}</p><p>It expires in 5 minutes. If you did not request this, ignore this email.</p>`;
+
+    // Render Free blocks SMTP ports. Prefer the HTTPS email API when configured.
+    if (resendApiKey) {
+        const response = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${resendApiKey}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                from: emailFrom,
+                to: [to],
+                subject,
+                text,
+                html
+            })
+        });
+
+        if (!response.ok) {
+            const details = await response.text();
+            throw new Error(`Email provider rejected the message (${response.status}): ${details.slice(0, 300)}`);
+        }
+        return;
+    }
+
     await mailer.sendMail({
-        from: process.env.EMAIL_FROM || process.env.SMTP_USER,
+        from: emailFrom || process.env.SMTP_USER,
         to,
-        subject: purpose === "verify" ? "Verify your SmartCivic email" : "Your SmartCivic password reset code",
-        text: `Your SmartCivic ${purpose === "verify" ? "email verification" : "password reset"} code is ${otp}. It expires in 5 minutes. If you did not request this, ignore this email.`,
-        html: `<p>Your SmartCivic ${purpose === "verify" ? "email verification" : "password reset"} code is:</p><p style="font-size:24px;font-weight:bold;letter-spacing:4px">${otp}</p><p>It expires in 5 minutes. If you did not request this, ignore this email.</p>`
+        subject,
+        text,
+        html
     });
 }
 
@@ -862,6 +898,20 @@ app.post(
                 });
             }
 
+            if (!emailConfigured) {
+                return res.status(503).json({
+                    message: "Email verification is not configured yet. Please try again later."
+                });
+            }
+
+            const otpKey = "verify:" + email;
+            const previous = otpStore.get(otpKey);
+            if (previous && Date.now() - previous.sentAt < 60 * 1000) {
+                return res.status(429).json({
+                    message: "Please wait one minute before requesting another code."
+                });
+            }
+
             const existing =
                 await get(
                     `
@@ -881,16 +931,14 @@ app.post(
 
             const otp = generateOTP();
 
-            otpStore.set(
-                "verify:" + email,
-                {
-                    otp: otp,
-                    expiresAt:
-                        Date.now() + 5 * 60 * 1000
-                }
-            );
-
             await sendOTPEmail(email, otp, "verify");
+
+            otpStore.set(otpKey, {
+                otp,
+                sentAt: Date.now(),
+                expiresAt: Date.now() + 5 * 60 * 1000,
+                attempts: 0
+            });
 
             res.json({
                 success: true,
@@ -975,7 +1023,19 @@ app.post(
                 });
             }
 
+            if ((stored.attempts || 0) >= 5) {
+                otpStore.delete("verify:" + email);
+                return res.status(429).json({
+                    message: "Too many incorrect codes. Request a new code and try again."
+                });
+            }
+
             if (stored.otp !== otp) {
+
+                stored.attempts = (stored.attempts || 0) + 1;
+                if (stored.attempts >= 5) {
+                    otpStore.delete("verify:" + email);
+                }
 
                 return res.status(400).json({
                     message:
@@ -1060,6 +1120,19 @@ app.post(
                 });
             }
 
+            if (emailConfigured) {
+                const verifiedOtp = otpStore.get("verify:" + cleanEmail);
+                if (
+                    !verifiedOtp ||
+                    !verifiedOtp.verified ||
+                    Date.now() > verifiedOtp.expiresAt
+                ) {
+                    return res.status(403).json({
+                        message: "Verify your email address before creating an account."
+                    });
+                }
+            }
+
             const id =
                 "citizen-" +
                 crypto.randomUUID();
@@ -1093,6 +1166,10 @@ app.post(
                     new Date().toISOString()
                 ]
             );
+
+            if (emailConfigured) {
+                otpStore.delete("verify:" + cleanEmail);
+            }
 
             res.json({
                 success: true,
@@ -2480,7 +2557,6 @@ app.get(
     async function (req, res) {
         try {
             await get("SELECT 1 AS ok");
-            const emailConfigured = Boolean(mailer);
             res.status(200).json({
                 success: true,
                 service: "SmartCivic Backend",
@@ -2494,7 +2570,7 @@ app.get(
                 success: false,
                 service: "SmartCivic Backend",
                 database: "unavailable",
-                emailConfigured: Boolean(mailer),
+                emailConfigured,
                 time: new Date().toISOString()
             });
         }
