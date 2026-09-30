@@ -95,13 +95,9 @@ if (!USE_POSTGRES) db.run("PRAGMA foreign_keys = ON");
 function sqlForPostgres(sql) {
     let index = 0;
     let postgresSql = sql
-        .replace(/INSERT OR IGNORE INTO/gi, "INSERT INTO")
         .replace("created_at >= datetime('now','-48 hours')", "created_at::timestamptz >= NOW() - INTERVAL '48 hours'")
         .replace(/\?/g, () => `$${++index}`)
         .replace("datetime('now','-48 hours')", "NOW() - INTERVAL '48 hours'");
-    if (/^\s*INSERT INTO users/i.test(postgresSql)) {
-        postgresSql += " ON CONFLICT DO NOTHING";
-    }
     return postgresSql;
 }
 
@@ -847,70 +843,6 @@ async function addEvent(
     );
 }
 
-/* =====================================================
-   SEED USERS
-===================================================== */
-
-async function seedUsers() {
-    if (process.env.NODE_ENV === "production") {
-        console.log("Demo staff accounts are disabled in production.");
-        return;
-    }
-    const users = [
-        {
-            id: "admin-001",
-            name: "Government Admin",
-            email: "admin@smartcivic.com",
-            mobile: "9999999999",
-            password: "admin123",
-            role: "admin"
-        },
-
-        {
-            id: "ngo-001",
-            name: "Smart Civic NGO",
-            email: "ngo@smartcivic.com",
-            mobile: "8888888888",
-            password: "ngo123",
-            role: "ngo"
-        }
-    ];
-
-    for (const user of users) {
-        const hash =
-            bcrypt.hashSync(
-                user.password,
-                10
-            );
-
-        await run(
-            `
-            INSERT OR IGNORE INTO users
-            (
-                id,
-                name,
-                email,
-                mobile,
-                password_hash,
-                role,
-                created_at
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            `,
-            [
-                user.id,
-                user.name,
-                user.email,
-                user.mobile,
-                hash,
-                user.role,
-                new Date().toISOString()
-            ]
-        );
-    }
-
-    console.log("Demo users ready.");
-}
 /* =====================================================
    EMAIL VERIFICATION OTP
 ===================================================== */
@@ -2608,7 +2540,6 @@ app.use(
 async function startServer() {
     try {
         await initializeDatabase();
-        await seedUsers();
         await runSLACheck();
 
         app.listen(
