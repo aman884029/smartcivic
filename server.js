@@ -278,6 +278,57 @@ async function initializeDatabase() {
     console.log("Database tables ready.");
 }
 
+async function provisionStaffAccounts() {
+    const accounts = [
+        {
+            role: "admin",
+            name: process.env.ADMIN_NAME || "SmartCivic Administrator",
+            email: process.env.ADMIN_EMAIL,
+            password: process.env.ADMIN_PASSWORD
+        },
+        {
+            role: "ngo",
+            name: process.env.NGO_NAME || "SmartCivic NGO",
+            email: process.env.NGO_EMAIL,
+            password: process.env.NGO_PASSWORD
+        }
+    ];
+
+    for (const account of accounts) {
+        if (!account.email && !account.password) continue;
+        if (!account.email || !account.password) {
+            throw new Error(`${account.role.toUpperCase()}_EMAIL and ${account.role.toUpperCase()}_PASSWORD must both be configured.`);
+        }
+        if (account.password.length < 12) {
+            throw new Error(`${account.role.toUpperCase()}_PASSWORD must be at least 12 characters.`);
+        }
+
+        const email = account.email.trim().toLowerCase();
+        const existing = await get("SELECT id, role FROM users WHERE email = ?", [email]);
+        if (existing) {
+            if (existing.role !== account.role) {
+                throw new Error(`Configured ${account.role} email already belongs to a ${existing.role} account. Choose a different staff email.`);
+            }
+            continue;
+        }
+
+        const passwordHash = await bcrypt.hash(account.password, 12);
+        await run(
+            `INSERT INTO users (id, name, email, mobile, password_hash, role, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [
+                `${account.role}-${crypto.randomUUID()}`,
+                account.name.trim(),
+                email,
+                "",
+                passwordHash,
+                account.role,
+                new Date().toISOString()
+            ]
+        );
+        console.log(`Provisioned ${account.role} staff account for ${email}.`);
+    }
+}
+
 /* =====================================================
    FILE UPLOAD
 ===================================================== */
@@ -2616,6 +2667,7 @@ app.use(
 async function startServer() {
     try {
         await initializeDatabase();
+        await provisionStaffAccounts();
         await runSLACheck();
 
         app.listen(
@@ -2642,6 +2694,7 @@ async function startServer() {
             "Server startup failed:",
             error
         );
+        process.exitCode = 1;
     }
 }
 

@@ -475,11 +475,26 @@ function showLogin() {
 
     showPage("loginPage");
 
+    const heading = document.querySelector("#loginPage .auth-card h2");
+    const message = document.querySelector("#loginPage .auth-card .muted");
+    if (heading) heading.textContent = "Welcome Back 👋";
+    if (message) message.textContent = "Login to SmartCivic";
+
     const form = $("loginForm");
 
     if (form) {
         form.reset();
     }
+}
+
+function showStaffLogin() {
+    showPage("loginPage");
+    const heading = document.querySelector("#loginPage .auth-card h2");
+    const message = document.querySelector("#loginPage .auth-card .muted");
+    if (heading) heading.textContent = "Staff Login";
+    if (message) message.textContent = "Admin and NGO staff: sign in with your authorized work account.";
+    const form = $("loginForm");
+    if (form) form.reset();
 }
 
 function showRegister() {
@@ -2376,6 +2391,8 @@ document.addEventListener(
 
 window.showLogin =
     showLogin;
+window.showStaffLogin =
+    showStaffLogin;
 
 window.showRegister =
     showRegister;

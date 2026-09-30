@@ -15,6 +15,14 @@ Render Free blocks outbound SMTP ports, so use the Resend HTTPS API rather than 
 
 Resend requires a verified sending domain and an API key for Node.js sending. See [Resend's Node.js guide](https://resend.com/docs/send-with-nodejs). SMTP variables remain available for deployments on providers that allow SMTP egress; Render Free does not allow outbound SMTP ports 25, 465, or 587.
 
+## Admin and NGO staff accounts
+
+The login page has a separate **Admin / NGO Staff Login** entry, and successful sign-in routes each role to its dashboard. Create these staff accounts through Render's private Environment settings; never add staff signup to the public website or commit passwords.
+
+Set `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `NGO_EMAIL`, and `NGO_PASSWORD` on the `smartcivic` web service (passwords must be at least 12 characters). Optional display names use `ADMIN_NAME` and `NGO_NAME`. Saving the settings restarts the service, which creates the matching staff accounts if they do not already exist. The supplied `render.yaml` declares these values as private inputs.
+
+Provisioning is insert-only: restarting does not reset existing staff passwords. To change a staff password later, use the existing password reset flow or update it securely in the database. If a configured email already belongs to a different role, startup fails rather than silently granting or changing privileges; choose a separate email address.
+
 ## Important free-plan limits
 
 - Render Free web services sleep after 15 minutes without traffic and can take about a minute to wake.

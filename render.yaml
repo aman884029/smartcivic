@@ -16,6 +16,18 @@ services:
         fromDatabase:
           name: smartcivic-db
           property: connectionString
+      - key: ADMIN_NAME
+        value: SmartCivic Administrator
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: NGO_NAME
+        value: SmartCivic NGO
+      - key: NGO_EMAIL
+        sync: false
+      - key: NGO_PASSWORD
+        sync: false
 
 databases:
   - name: smartcivic-db
