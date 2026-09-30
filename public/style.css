@@ -11,7 +11,7 @@ body {
 
     background:
         linear-gradient(
-            rgba(12, 34, 80, .58),
+            rgba(167, 174, 189, 0.58),
             rgba(42, 12, 76, .58)
         ),
         url("smart-city.jpg.png");
@@ -60,7 +60,7 @@ button {
 }
 
 .brand-area {
-    color: white;
+    color: rgb(255,255,255);
     text-align: center;
 }
 
@@ -111,13 +111,13 @@ button {
     border-radius: 14px;
 
     background:
-        rgba(255,255,255,.15);
+        rgba(16, 39, 243, 0.928);
 
     backdrop-filter: blur(8px);
 }
 
 .auth-card {
-    background: rgba(255,255,255,.96);
+    background: rgba(0,0,255);
 
     padding: 32px;
 
@@ -128,12 +128,12 @@ button {
 }
 
 .auth-card h2 {
-    color: #253b9b;
+    color: #f9f9ff;
     margin-bottom: 8px;
 }
 
 .muted {
-    color: #687083;
+    color: #ced0d5;
     margin-bottom: 22px;
 }
 
@@ -233,7 +233,7 @@ textarea {
     border-radius: 15px;
 
     background: #f1f4ff;
-
+color:#1e3a8a;
     font-size: 13px;
 }
 
@@ -246,7 +246,7 @@ textarea {
 }
 
 .topbar {
-    color: white;
+    color: rgb(241, 234, 234);
 
     padding: 18px 5%;
 
@@ -780,7 +780,7 @@ th {
 
     border-radius: 18px;
 
-    background: white;
+    background: rgb(255,255,255mmmmmmm);
 
     box-shadow:
         0 10px 25px rgba(0,0,0,.1);
@@ -1311,10 +1311,10 @@ body {
     width: 100%;
     max-width: 500px;
     margin-left: auto;
-    background: rgba(246,249,253,.94) !important;
-    border: 1px solid rgba(255,255,255,.75) !important;
+    background: rgba(69, 69, 88, 0.94) !important;
+    border: 1px solid rgba(191, 189, 199, 0.75) !important;
     border-radius: 30px !important;
-    box-shadow: 0 30px 90px rgba(0,0,0,.40) !important;
+    box-shadow: 0 30px 90px rgba(223, 224, 245, 0.15) !important;
     backdrop-filter: blur(20px);
 }
 .auth-card input,
@@ -1382,4 +1382,869 @@ body::after {
 }
 @media (prefers-reduced-motion: reduce) {
     .background-video { display: none; }
+}
+/* Fix Admin Demo and NGO Demo text visibility */
+.demo-box,
+.demo-box * {
+    color: #1e3a8a !important;
+}
+
+.demo-box b {
+    color: #253b9b !important;
+}
+/* ORIGINAL BACKGROUND */
+.background-shade {
+    background: transparent !important;
+}
+
+.background-vignette {
+    background: transparent !important;
+}
+
+.background-video {
+    filter: none !important;
+}
+/* SmartCivic Assistant - Visibility Fix */
+.chat-message,
+.chatbot-message,
+.message {
+    color: #111827 !important;
+    background: #ffffff !important;
+    opacity: 1 !important;
+    font-weight: 500 !important;
+}
+
+/* User message */
+.user-message {
+    background: #1d4ed8 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+
+/* Bot message */
+.bot-message,
+.assistant-message {
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+    opacity: 1 !important;
+}
+
+/* Chat input */
+.chat-input,
+.chatbot-input,
+.chat-window input {
+    color: #111827 !important;
+    background: #ffffff !important;
+    opacity: 1 !important;
+}
+
+/* Placeholder */
+.chat-input::placeholder,
+.chatbot-input::placeholder {
+    color: #6b7280 !important;
+    opacity: 1 !important;
+}
+/* ================================
+   COMPLAINT MODAL TEXT VISIBILITY
+   ================================ */
+
+#complaintModal {
+    color: #172033;
+}
+
+#complaintModal h2,
+#complaintModal h3,
+#complaintModal label,
+#complaintModal p,
+#complaintModal span {
+    color: #172033 !important;
+}
+
+#complaintModal .modal-header p {
+    color: #4b5563 !important;
+}
+
+#complaintModal input,
+#complaintModal textarea,
+#complaintModal select {
+    color: #172033 !important;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1;
+}
+
+#complaintModal input::placeholder,
+#complaintModal textarea::placeholder {
+    color: #64748b !important;
+    opacity: 1;
+}
+
+#complaintModal .evidence-section,
+#complaintModal .location-section {
+    background: #f1f5ff !important;
+}
+
+#complaintModal .checkbox-row {
+    color: #172033 !important;
+}
+
+#complaintModal .photo-buttons,
+#complaintModal .camera-btn,
+#complaintModal .location-btn {
+    color: #ffffff;
+}
+/* =========================================================
+   SMARTCIVIC - FINAL VISUAL ENHANCEMENT
+   Paste this entire block at the END of style.css
+   No existing CSS needs to be replaced.
+   ========================================================= */
+
+
+/* =========================================================
+   1. WELCOME CARD
+   ========================================================= */
+
+.welcome-card {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(15, 32, 58, 0.96),
+            rgba(30, 64, 110, 0.92)
+        ) !important;
+
+    border: 1px solid rgba(147, 197, 253, 0.28) !important;
+
+    box-shadow:
+        0 15px 40px rgba(0, 0, 0, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    color: #ffffff !important;
+}
+
+
+/* Welcome heading */
+
+.welcome-card h1 {
+    color: #ffffff !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+
+/* Welcome paragraph */
+
+.welcome-card p {
+    color: #dbeafe !important;
+}
+
+
+/* =========================================================
+   2. MY COMPLAINTS CARD
+   ========================================================= */
+
+.section-card {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(17, 35, 61, 0.96),
+            rgba(31, 48, 75, 0.93)
+        ) !important;
+
+    border: 1px solid rgba(148, 163, 184, 0.28) !important;
+
+    box-shadow:
+        0 15px 40px rgba(0, 0, 0, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    color: #ffffff !important;
+}
+
+
+/* My Complaints heading */
+
+.section-card h2 {
+    color: #ffffff !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+
+/* My Complaints description */
+
+.section-card p {
+    color: #cbd5e1 !important;
+}
+
+
+/* =========================================================
+   3. NEW BUTTON
+   ========================================================= */
+
+.section-card .small-btn {
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #4f46e5
+        ) !important;
+
+    color: #ffffff !important;
+
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+
+    box-shadow:
+        0 8px 20px rgba(37, 99, 235, 0.35) !important;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+}
+
+
+.section-card .small-btn:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 25px rgba(37, 99, 235, 0.48) !important;
+
+    filter: brightness(1.08);
+}
+
+
+/* =========================================================
+   4. TABLE
+   ========================================================= */
+
+.section-card table {
+    color: #f8fafc !important;
+}
+
+
+/* Table header */
+
+.section-card table thead {
+    background:
+        linear-gradient(
+            135deg,
+            #eef2ff,
+            #e0e7ff
+        ) !important;
+
+    color: #1e293b !important;
+}
+
+
+.section-card table th {
+    color: #334155 !important;
+    font-weight: 700;
+}
+
+
+/* Table body */
+
+.section-card table tbody {
+    background: rgba(15, 23, 42, 0.20) !important;
+}
+
+
+.section-card table td {
+    color: #f8fafc !important;
+}
+
+
+/* Table row */
+
+.section-card table tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+
+/* =========================================================
+   5. VIEW BUTTON
+   ========================================================= */
+
+.section-card table button {
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #4f46e5
+        ) !important;
+
+    color: #ffffff !important;
+
+    border: none !important;
+
+    box-shadow:
+        0 6px 15px rgba(37, 99, 235, 0.30) !important;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.section-card table button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 9px 20px rgba(37, 99, 235, 0.45) !important;
+}
+
+
+/* =========================================================
+   6. CARD HOVER EFFECT
+   ========================================================= */
+
+.welcome-card,
+.section-card {
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+}
+
+
+.welcome-card:hover {
+    transform: translateY(-2px);
+
+    border-color:
+        rgba(96, 165, 250, 0.45) !important;
+
+    box-shadow:
+        0 20px 45px rgba(0, 0, 0, 0.38),
+        0 0 25px rgba(37, 99, 235, 0.10) !important;
+}
+
+
+.section-card:hover {
+    border-color:
+        rgba(96, 165, 250, 0.40) !important;
+
+    box-shadow:
+        0 20px 45px rgba(0, 0, 0, 0.38),
+        0 0 25px rgba(37, 99, 235, 0.08) !important;
+}
+
+
+/* =========================================================
+   7. EMERGENCY BOX - BETTER FINISH
+   ========================================================= */
+
+.emergency-banner {
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, 0.22) !important;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+
+/* =========================================================
+   8. STATISTICS CARDS
+   Keep your existing colors but add depth
+   ========================================================= */
+
+.stat-card {
+    border:
+        1px solid rgba(255, 255, 255, 0.15) !important;
+
+    box-shadow:
+        0 12px 28px rgba(0, 0, 0, 0.25) !important;
+
+    transition:
+        transform 0.22s ease,
+        box-shadow 0.22s ease;
+}
+
+
+.stat-card:hover {
+    transform: translateY(-5px);
+
+    box-shadow:
+        0 18px 35px rgba(0, 0, 0, 0.32) !important;
+}
+
+
+/* =========================================================
+   9. WELCOME REPORT PROBLEM BUTTON
+   ========================================================= */
+
+.welcome-card .primary-btn {
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #eef2ff
+        ) !important;
+
+    color: #3730a3 !important;
+
+    border: 1px solid rgba(255, 255, 255, 0.7) !important;
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.20) !important;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.welcome-card .primary-btn:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 25px rgba(0, 0, 0, 0.28) !important;
+}
+
+
+/* =========================================================
+   10. FOOTER / BOTTOM TEXT
+   ========================================================= */
+
+.dashboard::after {
+    color: rgba(255, 255, 255, 0.65);
+}
+
+
+/* =========================================================
+   11. MOBILE RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .welcome-card,
+    .section-card {
+        border-radius: 18px !important;
+    }
+
+    .welcome-card {
+        background:
+            linear-gradient(
+                135deg,
+                rgba(15, 32, 58, 0.97),
+                rgba(30, 64, 110, 0.94)
+            ) !important;
+    }
+
+    .section-card {
+        background:
+            linear-gradient(
+                135deg,
+                rgba(17, 35, 61, 0.97),
+                rgba(31, 48, 75, 0.95)
+            ) !important;
+    }
+
+}
+
+
+/* =========================================================
+   12. EXTRA GLASS EFFECT
+   ========================================================= */
+
+.welcome-card::before,
+.section-card::before {
+    content: "";
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            120deg,
+            rgba(255, 255, 255, 0.06),
+            transparent 35%
+        );
+
+    opacity: 0.8;
+}
+
+
+/* Make sure pseudo-element doesn't affect layout */
+
+.welcome-card,
+.section-card {
+    position: relative;
+    overflow: hidden;
+}
+
+
+/* Keep content above glass layer */
+
+.welcome-card > *,
+.section-card > * {
+    position: relative;
+    z-index: 1;
+}
+/* =========================================================
+   SMARTCIVIC - COMPLAINT DETAILS MODAL
+   TEXT VISIBILITY + PREMIUM DARK BLUE DESIGN
+   Paste at the END of style.css
+   ========================================================= */
+
+
+/* Main Complaint Details Modal */
+
+#detailModal .modal-box {
+    background:
+        linear-gradient(
+            135deg,
+            #0f203a 0%,
+            #172b4d 55%,
+            #1e3a5f 100%
+        ) !important;
+
+    color: #ffffff !important;
+
+    border: 1px solid rgba(147, 197, 253, 0.30) !important;
+
+    box-shadow:
+        0 25px 60px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+#detailModal .modal-header h2 {
+    color: #ffffff !important;
+
+    text-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.30);
+}
+
+
+/* Close button */
+
+#detailModal .close-btn {
+    background: rgba(255, 255, 255, 0.92) !important;
+
+    color: #0f172a !important;
+
+    border: none !important;
+
+    box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.20);
+}
+
+#detailModal .close-btn:hover {
+    background: #ffffff !important;
+
+    color: #dc2626 !important;
+}
+
+
+/* =========================================================
+   DETAIL INFORMATION BOXES
+   ========================================================= */
+
+#detailModal .detail-item,
+#detailModal .detail-card,
+#detailModal .info-card {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(30, 58, 95, 0.95),
+            rgba(37, 61, 92, 0.90)
+        ) !important;
+
+    color: #ffffff !important;
+
+    border:
+        1px solid rgba(147, 197, 253, 0.18) !important;
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.18) !important;
+}
+
+
+/* =========================================================
+   ALL TEXT INSIDE DETAIL MODAL
+   ========================================================= */
+
+#detailModal h1,
+#detailModal h2,
+#detailModal h3,
+#detailModal h4,
+#detailModal h5,
+#detailModal p,
+#detailModal span,
+#detailModal strong,
+#detailModal label,
+#detailModal div {
+    color: #ffffff !important;
+}
+
+
+/* =========================================================
+   DETAIL LABELS
+   ========================================================= */
+
+#detailModal strong,
+#detailModal h4,
+#detailModal .label {
+    color: #bfdbfe !important;
+}
+
+
+/* =========================================================
+   DETAIL VALUES
+   ========================================================= */
+
+#detailModal .value {
+    color: #ffffff !important;
+}
+
+
+/* =========================================================
+   DESCRIPTION / NORMAL TEXT
+   ========================================================= */
+
+#detailModal p {
+    color: #e2e8f0 !important;
+}
+
+
+/* =========================================================
+   ID / CATEGORY / PRIORITY / STATUS ETC.
+   ========================================================= */
+
+#detailModal .detail-grid > div,
+#detailModal .details-grid > div {
+    background:
+        rgba(255, 255, 255, 0.07) !important;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.12) !important;
+
+    color: #ffffff !important;
+}
+
+
+/* =========================================================
+   LINKS
+   ========================================================= */
+
+#detailModal a {
+    color: #60a5fa !important;
+
+    text-decoration: none !important;
+}
+
+#detailModal a:hover {
+    color: #93c5fd !important;
+
+    text-decoration: underline !important;
+}
+
+
+/* =========================================================
+   EVIDENCE SECTION
+   ========================================================= */
+
+#detailModal .evidence,
+#detailModal .evidence-section {
+    background:
+        rgba(255, 255, 255, 0.05) !important;
+
+    border:
+        1px solid rgba(147, 197, 253, 0.18) !important;
+
+    color: #ffffff !important;
+}
+
+
+/* Evidence heading */
+
+#detailModal .evidence h3,
+#detailModal .evidence-section h3 {
+    color: #ffffff !important;
+}
+
+
+/* Evidence image */
+
+#detailModal img {
+    border-radius: 14px !important;
+
+    border:
+        2px solid rgba(255, 255, 255, 0.15) !important;
+
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, 0.35) !important;
+}
+
+
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
+
+#detailModal .status,
+#detailModal .badge {
+    color: #ffffff !important;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+#detailModal .modal-box::-webkit-scrollbar {
+    width: 8px;
+}
+
+#detailModal .modal-box::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+#detailModal .modal-box::-webkit-scrollbar-thumb {
+    background: rgba(147, 197, 253, 0.45);
+
+    border-radius: 10px;
+}
+
+#detailModal .modal-box::-webkit-scrollbar-thumb:hover {
+    background: rgba(147, 197, 253, 0.70);
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    #detailModal .modal-box {
+        background:
+            linear-gradient(
+                135deg,
+                #0f203a,
+                #172b4d
+            ) !important;
+    }
+
+}
+/* =========================================================
+   SMARTCIVIC - COMPLAINT TIMELINE FINAL FIX
+   Exact classes used by your project
+   ========================================================= */
+
+
+/* Timeline heading */
+#detailModal .timeline + *,
+#detailModal h3 {
+    color: #ffffff !important;
+}
+
+
+/* Timeline container */
+#detailModal .timeline {
+    background: transparent !important;
+    color: #ffffff !important;
+}
+
+
+/* EXACT timeline event class from your JS */
+#detailModal .event-item {
+    background:
+        linear-gradient(
+            135deg,
+            #1e3a5f,
+            #263f63
+        ) !important;
+
+    color: #ffffff !important;
+
+    border: 1px solid rgba(147, 197, 253, 0.25) !important;
+
+    border-left: 4px solid #3b82f6 !important;
+
+    border-radius: 12px !important;
+
+    padding: 18px !important;
+
+    margin-bottom: 12px !important;
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.22) !important;
+}
+
+
+/* Complaint Submitted */
+#detailModal .event-item b {
+    display: block;
+
+    color: #ffffff !important;
+
+    font-size: 16px;
+
+    font-weight: 700;
+}
+
+
+/* Complaint created */
+#detailModal .event-item p {
+    color: #dbeafe !important;
+
+    margin: 8px 0 !important;
+
+    font-size: 14px;
+}
+
+
+/* Date and time */
+#detailModal .event-item small {
+    color: #93c5fd !important;
+
+    font-size: 13px;
+}
+
+
+/* Hover */
+#detailModal .event-item:hover {
+    transform: translateY(-2px);
+
+    border-left-color: #60a5fa !important;
+
+    box-shadow:
+        0 12px 25px rgba(0, 0, 0, 0.30) !important;
+
+    transition: all 0.2s ease;
+}
+
+
+/* =========================================================
+   TIMELINE HEADING
+   ========================================================= */
+
+#detailModal .timeline {
+    margin-top: 12px !important;
+}
+
+#detailModal .timeline h3 {
+    color: #ffffff !important;
+}
+
+
+/* =========================================================
+   "No events" TEXT
+   ========================================================= */
+
+#detailModal .timeline:empty {
+    color: #cbd5e1 !important;
 }
