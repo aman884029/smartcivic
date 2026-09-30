@@ -347,15 +347,6 @@ async function registerUser(
     password
 ) {
 
-    if (!registrationEmailVerified) {
-
-        showToast(
-            "Please verify your email first."
-        );
-
-        return;
-    }
-
     await apiRequest(
         "/auth/register",
         {
@@ -378,8 +369,6 @@ async function registerUser(
     showToast(
         "Account created successfully!"
     );
-
-    registrationEmailVerified = false;
 
     showLogin();
 }
@@ -573,6 +562,14 @@ document.addEventListener(
 
                     const password =
                         $("registerPassword").value;
+
+                    const confirmPassword =
+                        $("registerConfirmPassword").value;
+
+                    if (password !== confirmPassword) {
+                        showToast("Passwords do not match.");
+                        return;
+                    }
 
                     try {
 

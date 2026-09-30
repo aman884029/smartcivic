@@ -28,6 +28,11 @@ function generateOTP() {
 const app = express();
 
 const PORT = process.env.PORT || 3000;
+const USE_POSTGRES = Boolean(process.env.DATABASE_URL);
+const pg = USE_POSTGRES ? require("pg") : null;
+if (process.env.NODE_ENV === "production" && !USE_POSTGRES) {
+    throw new Error("DATABASE_URL must be configured for production so user data is stored durably.");
+}
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET || JWT_SECRET.length < 32) {
@@ -81,20 +86,32 @@ app.use(express.static(PUBLIC_DIR));
    DATABASE
 ===================================================== */
 
-const db = new sqlite3.Database(
-    path.join(DATA_DIR, "smartcivic.db"),
-    function (err) {
-        if (err) {
-            console.error("Database connection error:", err);
-        } else {
-            console.log("SQLite database connected.");
-        }
-    }
-);
+const db = USE_POSTGRES
+    ? new pg.Pool({ connectionString: process.env.DATABASE_URL })
+    : new sqlite3.Database(path.join(DATA_DIR, "smartcivic.db"));
 
-db.run("PRAGMA foreign_keys = ON");
+if (!USE_POSTGRES) db.run("PRAGMA foreign_keys = ON");
+
+function sqlForPostgres(sql) {
+    let index = 0;
+    let postgresSql = sql
+        .replace(/INSERT OR IGNORE INTO/gi, "INSERT INTO")
+        .replace("created_at >= datetime('now','-48 hours')", "created_at::timestamptz >= NOW() - INTERVAL '48 hours'")
+        .replace(/\?/g, () => `$${++index}`)
+        .replace("datetime('now','-48 hours')", "NOW() - INTERVAL '48 hours'");
+    if (/^\s*INSERT INTO users/i.test(postgresSql)) {
+        postgresSql += " ON CONFLICT DO NOTHING";
+    }
+    return postgresSql;
+}
 
 function run(sql, params = []) {
+    if (USE_POSTGRES) {
+        return db.query(sqlForPostgres(sql), params).then((result) => ({
+            lastID: undefined,
+            changes: result.rowCount
+        }));
+    }
     return new Promise((resolve, reject) => {
         db.run(sql, params, function (err) {
             if (err) {
@@ -110,6 +127,9 @@ function run(sql, params = []) {
 }
 
 function get(sql, params = []) {
+    if (USE_POSTGRES) {
+        return db.query(sqlForPostgres(sql), params).then((result) => result.rows[0]);
+    }
     return new Promise((resolve, reject) => {
         db.get(sql, params, function (err, row) {
             if (err) {
@@ -122,6 +142,9 @@ function get(sql, params = []) {
 }
 
 function all(sql, params = []) {
+    if (USE_POSTGRES) {
+        return db.query(sqlForPostgres(sql), params).then((result) => result.rows);
+    }
     return new Promise((resolve, reject) => {
         db.all(sql, params, function (err, rows) {
             if (err) {
@@ -199,7 +222,7 @@ async function initializeDatabase() {
 
     await run(`
         CREATE TABLE IF NOT EXISTS complaint_events (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id ${USE_POSTGRES ? "SERIAL" : "INTEGER"} PRIMARY KEY ${USE_POSTGRES ? "" : "AUTOINCREMENT"},
             complaint_id TEXT NOT NULL,
             action TEXT NOT NULL,
             old_status TEXT,
@@ -210,6 +233,16 @@ async function initializeDatabase() {
         )
     `);
 
+    if (USE_POSTGRES) {
+        await run(`
+            CREATE TABLE IF NOT EXISTS stored_uploads (
+                id TEXT PRIMARY KEY,
+                content_type TEXT NOT NULL,
+                data BYTEA NOT NULL
+            )
+        `);
+    }
+
     console.log("Database tables ready.");
 }
 
@@ -217,27 +250,8 @@ async function initializeDatabase() {
    FILE UPLOAD
 ===================================================== */
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, UPLOAD_DIR);
-    },
-
-    filename: function (req, file, cb) {
-        const ext =
-            path.extname(file.originalname).toLowerCase();
-
-        cb(
-            null,
-            Date.now() +
-                "-" +
-                crypto.randomUUID() +
-                ext
-        );
-    }
-});
-
 const upload = multer({
-    storage,
+    storage: multer.memoryStorage(),
 
     limits: {
         fileSize: 8 * 1024 * 1024
@@ -256,6 +270,36 @@ const upload = multer({
                 )
             );
         }
+    }
+});
+
+async function storeUpload(file) {
+    const ext = path.extname(file.originalname).toLowerCase().replace(/[^.a-z0-9]/g, "");
+    const id = `${Date.now()}-${crypto.randomUUID()}${ext}`;
+    if (USE_POSTGRES) {
+        await run(
+            "INSERT INTO stored_uploads (id, content_type, data) VALUES (?, ?, ?)",
+            [id, file.mimetype, file.buffer]
+        );
+    } else {
+        await fs.promises.writeFile(path.join(UPLOAD_DIR, id), file.buffer);
+    }
+    return `/uploads/${id}`;
+}
+
+app.get("/uploads/:id", async function (req, res, next) {
+    if (!USE_POSTGRES) return next();
+    try {
+        const id = path.basename(req.params.id);
+        const file = await get(
+            "SELECT content_type, data FROM stored_uploads WHERE id = ?",
+            [id]
+        );
+        if (!file) return res.status(404).end();
+        res.type(file.content_type).set("Cache-Control", "public, max-age=86400").send(file.data);
+    } catch (error) {
+        console.error("Uploaded file read failed:", error.message);
+        res.status(500).end();
     }
 });
 
@@ -808,6 +852,10 @@ async function addEvent(
 ===================================================== */
 
 async function seedUsers() {
+    if (process.env.NODE_ENV === "production") {
+        console.log("Demo staff accounts are disabled in production.");
+        return;
+    }
     const users = [
         {
             id: "admin-001",
@@ -1621,11 +1669,7 @@ app.post(
                     Math.random() * 1000
                 );
 
-            const photoUrl =
-                req.file
-                    ? "/uploads/" +
-                      req.file.filename
-                    : "";
+            const photoUrl = req.file ? await storeUpload(req.file) : "";
 
             const now =
                 new Date().toISOString();
@@ -1994,26 +2038,12 @@ app.patch(
             let afterUrl =
                 complaint.after_photo_url;
 
-            if (
-                req.files &&
-                req.files.beforePhoto
-            ) {
-                beforeUrl =
-                    "/uploads/" +
-                    req.files
-                        .beforePhoto[0]
-                        .filename;
+            if (req.files && req.files.beforePhoto) {
+                beforeUrl = await storeUpload(req.files.beforePhoto[0]);
             }
 
-            if (
-                req.files &&
-                req.files.afterPhoto
-            ) {
-                afterUrl =
-                    "/uploads/" +
-                    req.files
-                        .afterPhoto[0]
-                        .filename;
+            if (req.files && req.files.afterPhoto) {
+                afterUrl = await storeUpload(req.files.afterPhoto[0]);
             }
 
             let resolvedAt =
@@ -2215,11 +2245,9 @@ app.post(
                 });
             }
 
-            const evidence =
-                req.file
-                    ? "/uploads/" +
-                      req.file.filename
-                    : complaint.ngo_evidence_url;
+            const evidence = req.file
+                ? await storeUpload(req.file)
+                : complaint.ngo_evidence_url;
 
             const now =
                 new Date().toISOString();
@@ -2517,14 +2545,27 @@ setInterval(
 
 app.get(
     "/api/health",
-    function (req, res) {
-        res.json({
-            success: true,
-            service:
-                "SmartCivic Backend",
-            time:
-                new Date().toISOString()
-        });
+    async function (req, res) {
+        try {
+            await get("SELECT 1 AS ok");
+            const emailConfigured = Boolean(mailer);
+            res.status(200).json({
+                success: true,
+                service: "SmartCivic Backend",
+                database: USE_POSTGRES ? "postgres" : "sqlite",
+                emailConfigured,
+                time: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error("Health check failed:", error.message);
+            res.status(503).json({
+                success: false,
+                service: "SmartCivic Backend",
+                database: "unavailable",
+                emailConfigured: Boolean(mailer),
+                time: new Date().toISOString()
+            });
+        }
     }
 );
 
@@ -2582,19 +2623,6 @@ async function startServer() {
                 );
                 console.log(
                     "================================="
-                );
-                console.log(
-                    "Admin:"
-                );
-                console.log(
-                    "admin@smartcivic.com / admin123"
-                );
-                console.log("");
-                console.log(
-                    "NGO:"
-                );
-                console.log(
-                    "ngo@smartcivic.com / ngo123"
                 );
                 console.log(
                     "================================="

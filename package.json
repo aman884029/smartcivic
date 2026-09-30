@@ -16,6 +16,7 @@
     "multer": "^2.0.2",
     "nodemailer": "^10.0.10",
     "openai": "^7.20.0",
+    "pg": "^8.23.0",
     "sqlite3": "^5.1.7"
   },
   "allowScripts": {

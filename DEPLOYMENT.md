@@ -1,20 +1,18 @@
 # SmartCivic deployment
 
-This is one Node/Express service serving both the website and API from the same URL. Use the included Render Blueprint (`render.yaml`), or create a Node web service with build command `npm ci`, start command `npm start`, and health check `/api/health`.
+SmartCivic is one Node/Express service serving the website and API. The included `render.yaml` defines a free Render web service plus a free PostgreSQL database in Singapore. The web service uses `npm ci` / `npm start`; Render generates the JWT secret and supplies the database connection string.
 
-The Blueprint provisions a persistent disk at `/var/data` for SQLite data and uploaded complaint photos. Keep `DATA_DIR=/var/data/data` and `UPLOAD_DIR=/var/data/uploads`. Render persistent disks require a paid service plan.
+The app writes uploaded images into PostgreSQL when `DATABASE_URL` is configured, so account records and images are independent of the web service's temporary local filesystem. The website is currently launched with email OTP paused: people can create accounts and log in, while password reset is disabled until email delivery is configured again.
 
-## Email configuration
+## Important free-plan limits
 
-Before launch, set `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, and `EMAIL_FROM` in Render using a real SMTP account and verified sender address. The app sends registration and password-reset codes by email and never prints OTPs to logs. OTP requests return an error until SMTP is configured. Render generates `JWT_SECRET`; other hosts need a random secret of at least 32 characters.
+- Render Free web services sleep after 15 minutes without traffic and can take about a minute to wake.
+- Render Free PostgreSQL is limited to 1 GB and expires after 30 days. The data is eventually deleted if the database is not upgraded. Migrate the database to a persistent provider before that deadline if people will rely on their accounts or complaints.
+- Free services are intended for demos and hobby projects, not production uptime guarantees.
 
-## Launch checklist
+## Before production use
 
-1. Upload this folder to a private GitHub repository.
-2. Connect the repo to Render and create the service from `render.yaml`.
-3. Add SMTP secrets in Render and deploy.
-4. Check `/api/health`, register a test citizen, receive and verify the emailed OTP, sign in, and create/read a complaint. Also test password reset.
-5. Restart the service and confirm the account and an uploaded photo remain available.
-
-The supplied demo database and demo records are intentionally omitted. A new database is initialized on startup. For security, configure production admin and NGO users separately before using staff-only features.
-
+1. Deploy the Blueprint from the private GitHub repository on Render, selecting the Free plan only.
+2. Verify `/api/health`, create a throwaway citizen account, log in, create/read a complaint, and upload a photo.
+3. Before opening registration to real users, replace the expiring free database with a durable database and configure email OTP through a verified SMTP provider. Keep all secrets in Render's environment settings; never commit them.
+4. Create real admin and NGO accounts separately. Production demo staff accounts are disabled, and their demo passwords are no longer shown on the login screen.
