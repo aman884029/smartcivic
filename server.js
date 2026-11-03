@@ -27,14 +27,18 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 const USE_POSTGRES = Boolean(process.env.DATABASE_URL);
+const DEMO_MODE = String(process.env.DEMO_MODE || "false").toLowerCase() === "true";
 const pg = USE_POSTGRES ? require("pg") : null;
-if (process.env.NODE_ENV === "production" && !USE_POSTGRES) {
-    throw new Error("DATABASE_URL must be configured for production so user data is stored durably.");
+if (process.env.NODE_ENV === "production" && !USE_POSTGRES && !DEMO_MODE) {
+    throw new Error("Configure DATABASE_URL, or explicitly set DEMO_MODE=true for a temporary demo database.");
 }
 
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET || JWT_SECRET.length < 32) {
+const JWT_SECRET = process.env.JWT_SECRET || (DEMO_MODE ? crypto.randomBytes(48).toString("hex") : "");
+if (JWT_SECRET.length < 32) {
     throw new Error("JWT_SECRET must be configured with at least 32 characters.");
+}
+if (DEMO_MODE && !USE_POSTGRES) {
+    console.warn("DEMO MODE: accounts, complaints, and uploads use temporary local storage and may be lost when the service restarts.");
 }
 
 const mailer = process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS
@@ -2613,6 +2617,7 @@ app.get(
                 service: "SmartCivic Backend",
                 database: USE_POSTGRES ? "postgres" : "sqlite",
                 emailConfigured,
+                demoMode: DEMO_MODE,
                 time: new Date().toISOString()
             });
         } catch (error) {

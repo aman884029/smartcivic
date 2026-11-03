@@ -23,6 +23,10 @@ Set `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `NGO_EMAIL`, and `NGO_PASSWORD` on the `sma
 
 Provisioning is insert-only: restarting does not reset existing staff passwords. To change a staff password later, use the existing password reset flow or update it securely in the database. If a configured email already belongs to a different role, startup fails rather than silently granting or changing privileges; choose a separate email address.
 
+## Temporary Koyeb demo without importing data
+
+The app can run without PostgreSQL for a throwaway presentation demo by setting `DEMO_MODE=true`. In this mode it creates a local SQLite database and uses a random JWT secret. Accounts and complaints are new and empty, and local database/uploads can be lost when the instance restarts or is redeployed. For Koyeb's GitHub buildpack, use the repository root containing `package.json`, set the run command to `npm start` (or use the included `Procfile`), and add `DEMO_MODE=true` in the service environment. Do not configure Render-only `DATABASE_URL` values on this demo service.
+
 ## Important free-plan limits
 
 - Render Free web services sleep after 15 minutes without traffic and can take about a minute to wake.
